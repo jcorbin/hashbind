@@ -1,0 +1,24 @@
+{
+  "name": "hashbind",
+  "version": "0.9.0",
+  "description": "Dual Binding Library For window.location.hash",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jcorbin/hashbind"
+  },
+  "keywords": [
+    "hash",
+    "bind",
+    "dual"
+  ],
+  "author": "Joshua T Corbin <jcorbin@wunjo.org>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jcorbin/hashbind/issues"
+  },
+  "homepage": "https://github.com/jcorbin/hashbind"
+}
