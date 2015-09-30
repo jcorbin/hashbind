@@ -38,7 +38,11 @@ function load() {
             if (this.bound[key]) {
                 this.bound[key].onChange();
             } else {
-                this.values[key] = parseValue(str).toValue(); // TODO: throws
+                var res = parseValue(str);
+                if (!res.err) {
+                    // intentional ignore parse error; best-effort load
+                    this.values[key] = res.value;
+                }
             }
         }
         seen[key] = true;
@@ -135,7 +139,12 @@ HashKeyBinding.prototype.load =
 function load() {
     var str = this.hash.cache[this.key];
     if (str !== undefined) {
-        var val = this.parse(str).toValue(); // TODO: throws
+        var res = this.parse(str);
+        if (res.err) {
+            // intentional ignore parse error; best-effort load
+            return this;
+        }
+        var val = res.value;
         if (this.value !== val) {
             this.value = val;
             this.hash.values[this.key] = this.value;
