@@ -218,12 +218,15 @@ function reset() {
 
 HashKeyBinding.prototype.set =
 function set(val) {
+    var value = null;
     if (typeof val === 'string') {
-        val = this.parse(val);
+        value = this.parse(val);
+    } else {
+        value = val;
     }
 
-    if (this.value !== val) {
-        this.value = val;
+    if (this.value !== value) {
+        this.value = value;
         this.notify();
         this.save();
     }
