@@ -118,9 +118,9 @@ function get(key) {
 };
 
 Hash.prototype.set =
-function set(key, val) {
+function set(key, val, callback) {
     var bound = this.bound[key] || this.bind(key);
-    return bound.set(val);
+    return bound.set(val, callback);
 };
 
 function HashKeyBinding(hash, key) {
@@ -225,7 +225,7 @@ HashKeyBinding.prototype.setDefault =
 function setDefault(def) {
     var value = null;
     if (typeof def === 'string') {
-        value = this.parse(def).toValue(); // NOTE: throws
+        value = this.parse(def).toValue();
     } else {
         value = def;
     }
@@ -259,11 +259,19 @@ function reset() {
 };
 
 HashKeyBinding.prototype.set =
-function set(val) {
+function set(val, callback) {
     var value = null;
     if (typeof val === 'string') {
         var res = this.parse(val);
-        value = res.toValue(); // TODO: throws
+        if (callback) {
+            callback(res.err, val, res.value);
+            if (res.err) {
+                return undefined;
+            }
+            value = res.value;
+        } else {
+            value = res.toValue();
+        }
     } else {
         value = val;
     }
