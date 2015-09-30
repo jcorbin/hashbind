@@ -262,7 +262,8 @@ HashKeyBinding.prototype.set =
 function set(val) {
     var value = null;
     if (typeof val === 'string') {
-        value = this.parse(val).toValue(); // TODO: throws
+        var res = this.parse(val);
+        value = res.toValue(); // TODO: throws
     } else {
         value = val;
     }
