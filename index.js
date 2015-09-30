@@ -1,5 +1,7 @@
 'use strict';
 
+var Result = require('rezult');
+
 module.exports = Hash;
 
 function Hash(window) {
@@ -36,7 +38,7 @@ function load() {
             if (this.bound[key]) {
                 this.bound[key].onChange();
             } else {
-                this.values[key] = parseValue(str);
+                this.values[key] = parseValue(str).toValue(); // TODO: throws
             }
         }
         seen[key] = true;
@@ -133,7 +135,7 @@ HashKeyBinding.prototype.load =
 function load() {
     var str = this.hash.cache[this.key];
     if (str !== undefined) {
-        var val = this.parse(str);
+        var val = this.parse(str).toValue(); // TODO: throws
         if (this.value !== val) {
             this.value = val;
             this.hash.values[this.key] = this.value;
@@ -214,7 +216,7 @@ HashKeyBinding.prototype.setDefault =
 function setDefault(def) {
     var value = null;
     if (typeof def === 'string') {
-        value = this.parse(def);
+        value = this.parse(def).toValue(); // NOTE: throws
     } else {
         value = def;
     }
@@ -251,7 +253,7 @@ HashKeyBinding.prototype.set =
 function set(val) {
     var value = null;
     if (typeof val === 'string') {
-        value = this.parse(val);
+        value = this.parse(val).toValue(); // TODO: throws
     } else {
         value = val;
     }
@@ -277,13 +279,13 @@ function valueToString(val) {
 
 function parseValue(str) {
     if (str === '' || str === 'true') {
-        return true;
+        return new Result(null, true);
     }
     if (str === 'false') {
-        return false;
+        return new Result(null, false);
     }
     if (str === 'null') {
-        return null;
+        return new Result(null, null);
     }
-    return str;
+    return new Result(null, str);
 }
