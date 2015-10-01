@@ -1,6 +1,6 @@
 {
   "name": "hashbind",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Dual Binding Library For window.location.hash",
   "main": "index.js",
   "scripts": {
