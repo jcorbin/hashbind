@@ -43,11 +43,18 @@ function load() {
         }
         seen[key] = true;
     }
+    this.prune(seen);
+};
 
+Hash.prototype.prune =
+function prune(except) {
+    if (!except) {
+        except = {};
+    }
     var cacheKeys = Object.keys(this.cache);
-    for (i = 0; i < cacheKeys.length; i++) {
-        key = cacheKeys[i];
-        if (!seen[key]) {
+    for (var i = 0; i < cacheKeys.length; i++) {
+        var key = cacheKeys[i];
+        if (!except[key]) {
             if (this.bound[key]) {
                 this.bound[key].reset();
             } else {
