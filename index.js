@@ -124,7 +124,9 @@ function HashKeyBinding(hash, key) {
     this.value = hash.values[key];
     this.parse = parseValue;
     this.valToString = valueToString;
+    this.listener = null;
     this.listeners = [];
+    this.notify = this.notifyNoop;
 }
 
 HashKeyBinding.prototype.load =
@@ -152,8 +154,19 @@ function save() {
     return this;
 };
 
-HashKeyBinding.prototype.notify =
-function notify() {
+HashKeyBinding.prototype.notifyNoop =
+function notifyNoop() {
+    return this;
+};
+
+HashKeyBinding.prototype.notifyOne =
+function notifyOne() {
+    this.listener(this.value);
+    return this;
+};
+
+HashKeyBinding.prototype.notifyAll =
+function notifyAll() {
     for (var i = 0; i < this.listeners.length; i++) {
         this.listeners[i].call(this, this.value);
     }
@@ -181,7 +194,16 @@ function setToString(toString) {
 
 HashKeyBinding.prototype.addListener =
 function addListener(listener) {
-    this.listeners.push(listener);
+    if (this.listeners.length) {
+        this.listeners.push(listener);
+    } else if (this.listener) {
+        this.listeners = [this.listener, listener];
+        this.listener = null;
+        this.notify = this.notifyAll;
+    } else {
+        this.listener = listener;
+        this.notify = this.notifyOne;
+    }
     if (this.value !== undefined) {
         this.notify();
     }
