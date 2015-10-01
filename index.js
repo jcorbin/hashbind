@@ -18,7 +18,8 @@ function Hash(window) {
     }
 }
 
-Hash.prototype.load = function load() {
+Hash.prototype.load =
+function load() {
     if (this.window.location.hash === this.last) {
         return;
     }
@@ -57,7 +58,8 @@ Hash.prototype.load = function load() {
     }
 };
 
-Hash.prototype.save = function save() {
+Hash.prototype.save =
+function save() {
     var hash = '';
 
     var keys = Object.keys(this.cache);
@@ -85,7 +87,8 @@ Hash.prototype.save = function save() {
     this.window.location.hash = this.last = hash;
 };
 
-Hash.prototype.bind = function bind(key) {
+Hash.prototype.bind =
+function bind(key) {
     if (this.bound[key]) {
         throw new Error('key already bound');
     }
@@ -94,15 +97,18 @@ Hash.prototype.bind = function bind(key) {
     return bound;
 };
 
-Hash.prototype.getStr = function getStr(key) {
+Hash.prototype.getStr =
+function getStr(key) {
     return this.cache[key];
 };
 
-Hash.prototype.get = function get(key) {
+Hash.prototype.get =
+function get(key) {
     return this.values[key];
 };
 
-Hash.prototype.set = function set(key, val) {
+Hash.prototype.set =
+function set(key, val) {
     var bound = this.bound[key] || this.bind(key);
     return bound.set(val);
 };
@@ -117,7 +123,8 @@ function HashKeyBinding(hash, key) {
     this.listeners = [];
 }
 
-HashKeyBinding.prototype.load = function load() {
+HashKeyBinding.prototype.load =
+function load() {
     var str = this.hash.cache[this.key];
     if (str !== undefined) {
         var val = this.parse(str);
@@ -130,7 +137,8 @@ HashKeyBinding.prototype.load = function load() {
     return this;
 };
 
-HashKeyBinding.prototype.save = function save() {
+HashKeyBinding.prototype.save =
+function save() {
     this.hash.values[this.key] = this.value;
     var str = this.valToString(this.value);
     if (this.hash.cache[this.key] !== str) {
@@ -140,14 +148,16 @@ HashKeyBinding.prototype.save = function save() {
     return this;
 };
 
-HashKeyBinding.prototype.notify = function notify() {
+HashKeyBinding.prototype.notify =
+function notify() {
     for (var i = 0; i < this.listeners.length; i++) {
         this.listeners[i].call(this, this.value);
     }
     return this;
 };
 
-HashKeyBinding.prototype.setParse = function setParse(parse, toString) {
+HashKeyBinding.prototype.setParse =
+function setParse(parse, toString) {
     this.parse = parse || parseValue;
     this.load();
     if (toString) {
@@ -156,7 +166,8 @@ HashKeyBinding.prototype.setParse = function setParse(parse, toString) {
     return this;
 };
 
-HashKeyBinding.prototype.setToString = function setToString(toString) {
+HashKeyBinding.prototype.setToString =
+function setToString(toString) {
     this.valToString = toString;
     if (this.value !== undefined) {
         this.save();
@@ -164,7 +175,8 @@ HashKeyBinding.prototype.setToString = function setToString(toString) {
     return this;
 };
 
-HashKeyBinding.prototype.addListener = function addListener(listener) {
+HashKeyBinding.prototype.addListener =
+function addListener(listener) {
     if (this.value !== undefined) {
         listener(this.value);
     }
@@ -172,7 +184,8 @@ HashKeyBinding.prototype.addListener = function addListener(listener) {
     return this;
 };
 
-HashKeyBinding.prototype.setDefault = function setDefault(def) {
+HashKeyBinding.prototype.setDefault =
+function setDefault(def) {
     if (typeof def === 'string') {
         def = this.parse(def);
     }
@@ -184,23 +197,27 @@ HashKeyBinding.prototype.setDefault = function setDefault(def) {
     return this;
 };
 
-HashKeyBinding.prototype.onChange = function onChange() {
+HashKeyBinding.prototype.onChange =
+function onChange() {
     this.load();
     return this;
 };
 
-HashKeyBinding.prototype.get = function get() {
+HashKeyBinding.prototype.get =
+function get() {
     return this.value;
 };
 
-HashKeyBinding.prototype.reset = function reset() {
+HashKeyBinding.prototype.reset =
+function reset() {
     if (this.value !== this.def) {
         this.value = this.def;
         this.save();
     }
 };
 
-HashKeyBinding.prototype.set = function set(val) {
+HashKeyBinding.prototype.set =
+function set(val) {
     if (typeof val === 'string') {
         val = this.parse(val);
     }
