@@ -181,10 +181,10 @@ function setToString(toString) {
 
 HashKeyBinding.prototype.addListener =
 function addListener(listener) {
-    if (this.value !== undefined) {
-        listener(this.value);
-    }
     this.listeners.push(listener);
+    if (this.value !== undefined) {
+        this.notify();
+    }
     return this;
 };
 
