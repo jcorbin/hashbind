@@ -209,7 +209,6 @@ function setDefault(def) {
 HashKeyBinding.prototype.onChange =
 function onChange() {
     this.load();
-    return this;
 };
 
 HashKeyBinding.prototype.get =
