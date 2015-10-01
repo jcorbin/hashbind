@@ -65,8 +65,7 @@ function prune(except) {
 
 Hash.prototype.save =
 function save() {
-    var hash = '';
-
+    var parts = [];
     var keys = Object.keys(this.cache);
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
@@ -81,12 +80,12 @@ function save() {
         } else if (str !== '') {
             part += '=' + escape(str);
         }
+        parts.push(part);
+    }
 
-        if (hash !== '') {
-            hash += '&' + part;
-        } else {
-            hash += '#' + part;
-        }
+    var hash = parts.join('&');
+    if (hash) {
+        hash = '#' + hash;
     }
 
     this.window.location.hash = this.last = hash;
