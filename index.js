@@ -27,11 +27,9 @@ function load() {
     this.last = this.window.location.hash;
     var parts = this.last.slice(1).split('&');
     var seen = {};
-    var i;
-    var key;
-    for (i = 0; i < parts.length; i++) {
+    for (var i = 0; i < parts.length; i++) {
         var keyval = parts[i].split('=');
-        key = unescape(keyval[0]);
+        var key = unescape(keyval[0]);
         var str = unescape(keyval[1]) || '';
         if (this.cache[key] !== str) {
             this.cache[key] = str;
