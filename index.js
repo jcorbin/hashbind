@@ -56,8 +56,8 @@ function prune(except) {
             if (this.bound[key]) {
                 this.bound[key].reset();
             } else {
-                this.cache[key] = undefined;
-                this.values[key] = undefined;
+                delete this.cache[key];
+                delete this.values[key];
             }
         }
     }
