@@ -223,6 +223,7 @@ function reset() {
         this.value = this.def;
         this.save();
     }
+    return this;
 };
 
 HashKeyBinding.prototype.set =
