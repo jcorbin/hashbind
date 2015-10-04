@@ -86,23 +86,12 @@ function save() {
             this.cache[key] = valueToString(this.values[key]);
         }
         var str = this.cache[key];
-
-        var part = '';
-        if (this.escape) {
-            part += escape(key);
-        } else {
-            part += key;
-        }
+        var part = '' + this.escapePart(key);
         if (str === undefined) {
             continue;
         }
         if (str !== '') {
-            part += '=';
-            if (this.escape) {
-                part += escape(str);
-            } else {
-                part += str;
-            }
+            part += '=' + this.escapePart(str);
         }
         parts.push(part);
     }
@@ -113,6 +102,14 @@ function save() {
     }
 
     this.window.location.hash = this.last = hash;
+};
+
+Hash.prototype.escapePart =
+function escapePart(str) {
+    if (this.escape) {
+        return escape(str);
+    }
+    return str;
 };
 
 Hash.prototype.bind =
