@@ -4,8 +4,11 @@ var Result = require('rezult');
 
 module.exports = Hash;
 
-function Hash(window) {
+function Hash(window, options) {
     var self = this;
+    if (!options) {
+        options = {};
+    }
 
     this.window = window;
     this.window.addEventListener('hashchange', onHashChange);
