@@ -18,7 +18,7 @@ function Hash(window, options) {
     this.bound = {};
     this.load();
     // TODO: do we ever need to escape?
-    this.escape =
+    this.fullEscape =
         options.escape === undefined
         ? true : !!options.escape;
 
@@ -106,7 +106,7 @@ function save() {
 
 Hash.prototype.escapePart =
 function escapePart(str) {
-    if (this.escape) {
+    if (this.fullEscape) {
         return escape(str);
     }
     return str;
