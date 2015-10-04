@@ -17,6 +17,10 @@ function Hash(window, options) {
     this.values = {};
     this.bound = {};
     this.load();
+    // TODO: do we ever need to escape?
+    this.escape =
+        options.escape === undefined
+        ? true : !!options.escape;
 
     function onHashChange(e) {
         self.load();
@@ -83,11 +87,22 @@ function save() {
         }
         var str = this.cache[key];
 
-        var part = '' + escape(key);
+        var part = '';
+        if (this.escape) {
+            part += escape(key);
+        } else {
+            part += key;
+        }
         if (str === undefined) {
             continue;
-        } else if (str !== '') {
-            part += '=' + escape(str);
+        }
+        if (str !== '') {
+            part += '=';
+            if (this.escape) {
+                part += escape(str);
+            } else {
+                part += str;
+            }
         }
         parts.push(part);
     }
