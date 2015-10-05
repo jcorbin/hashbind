@@ -109,7 +109,7 @@ function escapePart(str) {
     if (this.fullEscape) {
         return escape(str);
     }
-    return str.replace(/[#=&]/, function each(part) {
+    return str.replace(/[#=&]/g, function each(part) {
         return escape(part);
     });
 };
