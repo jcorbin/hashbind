@@ -4,6 +4,50 @@ var Result = require('rezult');
 
 module.exports = Hash;
 
+Hash.decodeUnescape =
+function decodeUnescape(str) {
+    var keyvals = [];
+    var parts = str.split('&');
+    for (var i = 0; i < parts.length; i++) {
+        var keystr = parts[i].split('=');
+        var key = unescape(keystr[0]);
+        var val = unescape(keystr[1]) || '';
+        keyvals.push([key, val]);
+    }
+    return keyvals;
+};
+
+Hash.encodeMinEscape =
+function encodeMinEscape(keyvals) {
+    var parts = [];
+    for (var i = 0; i < keyvals.length; i++) {
+        var key = keyvals[i][0];
+        var val = keyvals[i][1];
+        var part = '' + minEscape(key);
+        if (val !== undefined && val !== '') {
+            part += '=' + minEscape(val);
+        }
+
+        parts.push(part);
+    }
+    return parts.join('&');
+};
+
+Hash.encodeMaxEscape =
+function encodeMaxEscape(keyvals) {
+    var parts = [];
+    for (var i = 0; i < keyvals.length; i++) {
+        var key = keyvals[i][0];
+        var val = keyvals[i][1];
+        var part = '' + escape(key);
+        if (val !== undefined && val !== '') {
+            part += '=' + escape(val);
+        }
+        parts.push(part);
+    }
+    return parts.join('&');
+};
+
 function Hash(window, options) {
     var self = this;
     if (!options) {
@@ -11,16 +55,18 @@ function Hash(window, options) {
     }
 
     this.window = window;
-    this.window.addEventListener('hashchange', onHashChange);
     this.last = '';
     this.cache = {};
     this.values = {};
     this.bound = {};
-    this.load();
     // TODO: do we ever need to escape?
-    this.fullEscape =
-        options.escape === undefined
-        ? true : !!options.escape;
+    this.decode = options.decode || Hash.decodeUnescape;
+    this.encode = options.encode || (options.escape
+        ? Hash.encodeMaxEscape
+        : Hash.encodeMinEscape);
+
+    this.window.addEventListener('hashchange', onHashChange);
+    this.load();
 
     function onHashChange(e) {
         self.load();
@@ -34,12 +80,12 @@ function load() {
     }
 
     this.last = this.window.location.hash;
-    var parts = this.last.slice(1).split('&');
+    var keystrs = this.decode(this.last.slice(1));
+
     var seen = {};
-    for (var i = 0; i < parts.length; i++) {
-        var keyval = parts[i].split('=');
-        var key = unescape(keyval[0]);
-        var str = unescape(keyval[1]) || '';
+    for (var i = 0; i < keystrs.length; i++) {
+        var key = keystrs[i][0];
+        var str = keystrs[i][1];
         if (this.cache[key] !== str) {
             this.cache[key] = str;
             if (this.bound[key]) {
@@ -78,7 +124,7 @@ function prune(except) {
 
 Hash.prototype.save =
 function save() {
-    var parts = [];
+    var keystrs = [];
     var keys = Object.keys(this.cache);
     for (var i = 0; i < keys.length; i++) {
         var key = keys[i];
@@ -86,32 +132,14 @@ function save() {
             this.cache[key] = valueToString(this.values[key]);
         }
         var str = this.cache[key];
-        var part = '' + this.escapePart(key);
-        if (str === undefined) {
-            continue;
-        }
-        if (str !== '') {
-            part += '=' + this.escapePart(str);
-        }
-        parts.push(part);
+        keystrs.push([key, str]);
     }
 
-    var hash = parts.join('&');
+    var hash = this.encode(keystrs);
     if (hash) {
         hash = '#' + hash;
     }
-
     this.window.location.hash = this.last = hash;
-};
-
-Hash.prototype.escapePart =
-function escapePart(str) {
-    if (this.fullEscape) {
-        return escape(str);
-    }
-    return str.replace(/[#=&]/g, function each(part) {
-        return escape(part);
-    });
 };
 
 Hash.prototype.bind =
@@ -323,4 +351,12 @@ function parseValue(str) {
         return new Result(null, null);
     }
     return new Result(null, str);
+}
+
+function minEscape(str) {
+    return str.replace(/[#=&]/g, escapeMatch);
+}
+
+function escapeMatch(part) {
+    return escape(part);
 }
