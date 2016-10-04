@@ -72,6 +72,7 @@ function Hash(window, options) {
 
     this.window.addEventListener('hashchange', onHashChange);
     this.load();
+    this.save();
 
     function onHashChange(e) {
         self.load();
