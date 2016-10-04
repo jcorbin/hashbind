@@ -24,10 +24,12 @@ function encodeMinEscape(keyvals) {
         var key = keyvals[i][0];
         var val = keyvals[i][1];
         var part = '' + minEscape(key);
-        if (val !== undefined && val !== '') {
+        if (val === undefined) {
+            continue;
+        }
+        if (val !== '') {
             part += '=' + minEscape(val);
         }
-
         parts.push(part);
     }
     return parts.join('&');
@@ -40,7 +42,10 @@ function encodeMaxEscape(keyvals) {
         var key = keyvals[i][0];
         var val = keyvals[i][1];
         var part = '' + escape(key);
-        if (val !== undefined && val !== '') {
+        if (val === undefined) {
+            continue;
+        }
+        if (val !== '') {
             part += '=' + escape(val);
         }
         parts.push(part);
