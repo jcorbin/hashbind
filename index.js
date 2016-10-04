@@ -1,13 +1,14 @@
 'use strict';
 
 var Base64 = require('Base64');
+var pako = require('pako');
 var Result = require('rezult');
 
 module.exports = Hash;
 
 Hash.decodeFirst =
 function decodeFirst(decoders) {
-    return function decoder(str) {
+    return function decode(str) {
         for (var i = 0; i < decoders.length; ++i) {
             var keyvals = decoders[i](str);
             if (keyvals !== null) {
@@ -15,6 +16,52 @@ function decodeFirst(decoders) {
             }
         }
         return null;
+    };
+};
+
+Hash.encodeShortest =
+function encodeShortest(encoders) {
+    return function encode(keystrs) {
+        var best = null;
+        for (var i = 0; i < encoders.length; ++i) {
+            var str = encoders[i](keystrs);
+            if (!str) continue;
+            if (!best || str.length < best.length) {
+                console.log('at %s < %s, %o takes the lead',
+                    str.length,
+                    (best ? best.length : null),
+                    str
+                );
+                best = str;
+            }
+        }
+        return best;
+    };
+};
+
+Hash.deflated =
+function deflated(enc, mark) {
+    if (typeof enc !== 'function') throw new Error('enc not a function');
+    if (!mark) mark = 'z:';
+    return function encode(keystrs) {
+        var str = enc(keystrs);
+        var deflator = new pako.Deflate({to: 'string'});
+        deflator.push(str, true);
+        if (deflator.err) return str;
+        return mark + Base64.btoa(deflator.result);
+    };
+};
+
+Hash.inflated =
+function inflated(dec, mark) {
+    if (!mark) mark = 'z:';
+    return function decode(str) {
+        if (str.slice(0, mark.length) !== mark) return null;
+        str = Base64.atob(str.slice(2));
+        var inflator = new pako.Inflate({to: 'string'});
+        inflator.push(str, true);
+        if (inflator.err) return null;
+        return dec(inflator.result);
     };
 };
 
@@ -71,12 +118,8 @@ var asciiESC = '\x1b';
 var asciiFS = '\x1c';
 var asciiRS = '\x1e';
 
-Hash.decodeBase64 =
-function decodeBase64(str) {
-    if (str.slice(0, 4) !== 'b64:') {
-        return null;
-    }
-    str = Base64.atob(str.slice(4));
+Hash.decodeAsciiSep =
+function decodeAsciiSep(str) {
     var keyvals = [];
     var i = 0;
     while (i < str.length) {
@@ -104,8 +147,8 @@ function decodeBase64(str) {
     return keyvals;
 };
 
-Hash.encodeBase64 =
-function encodeBase64(keyvals) {
+Hash.encodeAsciiSep =
+function encodeAsciiSep(keyvals) {
     var out = '';
     for (var i = 0; i < keyvals.length; i++) {
         var key = keyvals[i][0];
@@ -123,8 +166,24 @@ function encodeBase64(keyvals) {
                 .replace(asciiFS, asciiESC + asciiFS)
                 .replace(asciiRS, asciiESC + asciiRS);
     }
-    return 'b64:' + Base64.btoa(out);
+    return out;
+};
+
+Hash.decodeBase64 =
+function decodeBase64(str) {
+    if (str.slice(0, 4) !== 'b64:') {
+        return null;
+    }
+    return Hash.decodeAsciiSep(Base64.atob(str.slice(4)));
+};
+
+Hash.encodeBase64 =
+function encodeBase64(keyvals) {
+    return 'b64:' + Base64.btoa(Hash.encodeAsciiSep(keyvals));
 }
+
+Hash.decodePaked = Hash.inflated(Hash.decodeAsciiSep, 'pak:');
+Hash.encodePaked = Hash.deflated(Hash.encodeAsciiSep, 'pak:');
 
 function Hash(window, options) {
     var self = this;
