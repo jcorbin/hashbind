@@ -5,6 +5,19 @@ var Result = require('rezult');
 
 module.exports = Hash;
 
+Hash.decodeFirst =
+function decodeFirst(decoders) {
+    return function decoder(str) {
+        for (var i = 0; i < decoders.length; ++i) {
+            var keyvals = decoders[i](str);
+            if (keyvals !== null) {
+                return keyvals;
+            }
+        }
+        return null;
+    };
+};
+
 Hash.decodeUnescape =
 function decodeUnescape(str) {
     var keyvals = [];
