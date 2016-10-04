@@ -72,7 +72,7 @@ function Hash(window, options) {
 
     this.window.addEventListener('hashchange', onHashChange);
     this.load();
-    this.save();
+    this.save('initial');
 
     function onHashChange(e) {
         self.load();
@@ -206,7 +206,7 @@ function load() {
 };
 
 HashKeyBinding.prototype.save =
-function save() {
+function save(reason) {
     this.hash.values[this.key] = this.value;
     var str = this.valToString(this.value);
     if (this.hash.cache[this.key] !== str) {
@@ -249,7 +249,7 @@ HashKeyBinding.prototype.setToString =
 function setToString(toString) {
     this.valToString = toString;
     if (this.value !== undefined) {
-        this.save();
+        this.save('setToString');
     }
     return this;
 };
@@ -284,7 +284,7 @@ function setDefault(def) {
     this.def = value;
     if (this.value === undefined) {
         this.value = this.def;
-        this.save();
+        this.save('setDefault');
     }
 
     return this;
@@ -304,7 +304,7 @@ HashKeyBinding.prototype.reset =
 function reset() {
     if (this.value !== this.def) {
         this.value = this.def;
-        this.save();
+        this.save('reset');
     }
     return this;
 };
@@ -330,7 +330,7 @@ function set(val, callback) {
     if (this.value !== value) {
         this.value = value;
         this.notify();
-        this.save();
+        this.save('set');
     }
 
     return this.value;
