@@ -1,5 +1,6 @@
 'use strict';
 
+var Base64 = require('Base64');
 var Result = require('rezult');
 
 module.exports = Hash;
@@ -52,6 +53,65 @@ function encodeMaxEscape(keyvals) {
     }
     return parts.join('&');
 };
+
+var asciiESC = '\x1b';
+var asciiFS = '\x1c';
+var asciiRS = '\x1e';
+
+Hash.decodeBase64 =
+function decodeBase64(str) {
+    if (str.slice(0, 4) !== 'b64:') {
+        return null;
+    }
+    str = Base64.atob(str.slice(4));
+    var keyvals = [];
+    var i = 0;
+    while (i < str.length) {
+        var key = '', val = '';
+        while (i < str.length) {
+            if (str[i] === asciiESC) { i++; }
+            else if (str[i] === asciiFS) {
+                i++
+                break;
+            }
+            key += str[i++];
+        }
+        while (i < str.length) {
+            if (str[i] === asciiESC) { i++; }
+            else if (str[i] === asciiRS) {
+                i++;
+                break;
+            }
+            val += str[i++];
+        }
+        if (key !== '') {
+            keyvals.push([key, val]);
+        }
+    }
+    return keyvals;
+};
+
+Hash.encodeBase64 =
+function encodeBase64(keyvals) {
+    var out = '';
+    for (var i = 0; i < keyvals.length; i++) {
+        var key = keyvals[i][0];
+        var val = keyvals[i][1];
+        if (val === undefined) {
+            continue;
+        }
+        out +=
+            (i > 0 ? asciiRS : '') +
+            key
+                .replace(asciiFS, asciiESC + asciiFS)
+                .replace(asciiRS, asciiESC + asciiRS) +
+            asciiFS +
+            val
+                .replace(asciiFS, asciiESC + asciiFS)
+                .replace(asciiRS, asciiESC + asciiRS);
+    }
+    return 'b64:' + Base64.btoa(out);
+}
 
 function Hash(window, options) {
     var self = this;

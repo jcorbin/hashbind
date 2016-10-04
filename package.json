@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/jcorbin/hashbind",
   "dependencies": {
+    "Base64": "0.3.0",
     "rezult": "^1.1.0"
   },
   "devDependencies": {
